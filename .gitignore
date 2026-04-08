@@ -22,6 +22,7 @@ NBProfiler*
 .idea/httpRequests
 .idea/dataSources/
 CopilotChat*
+.idea/
 
 # 系统文件
 .DS_Store
