@@ -54,8 +54,23 @@ public class GCLab3 {
             String userId = "user_" + (int)(Math.random() * 1000);
             ClickEvent event = new ClickEvent(userId);
 
+            // 先判断容量，超了就删最旧的
+            if(eventCache.size() >= 500){
+                String oldest = eventCache.keySet().iterator().next();
+                eventCache.remove(oldest);
+            }
+
+
             // 泄漏：每个 userId 对应一个 List，List 只增不减
-            eventCache.computeIfAbsent(userId, k -> new ArrayList<>()).add(event);
+            // 取出key 的list
+            List<ClickEvent> events = eventCache.computeIfAbsent(userId, k -> new ArrayList<>());
+
+            if(events.size() >= 10){
+                events.remove(0); //移除最旧的一条
+            }
+
+            events.add(event);
+
         }
     }
 
@@ -77,8 +92,7 @@ public class GCLab3 {
             + "总计:" + total + "MB/"
             + "最大:" + max + "MB | "
             + "eventCache 用户数:" + eventCache.size() + " | "
-            + "事件总数:" + eventCache.values().stream()
-                .mapToInt(List::size).sum());
+            + "事件总数:" + eventCache.values().stream().mapToInt(List::size).sum());
     }
 
     // ========== 数据模型 ==========
