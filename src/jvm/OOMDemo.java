@@ -29,4 +29,4 @@ public class OOMDemo {
         }
     }
 }
-//java -Xmx256m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./heapdump.hprof OOMDemo
+//-Xmx256m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./heapdump.hprof
