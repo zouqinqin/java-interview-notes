@@ -27,3 +27,18 @@ CopilotChat*
 # 系统文件
 .DS_Store
 Thumbs.db
+
+# Maven 编译产物
+target/
+*.jar
+*.war
+.index/
+*.index
+
+# JVM dump 文件
+*.threads
+*_Leak_Suspects.zip
+heapdump*
+
+# IDEA 本身
+*.iml
