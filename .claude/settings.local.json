@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(find:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(cd:*)",
+      "Bash(oh-my-posh *)",
+      "PowerShell(winget install *)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(& \"$env:LOCALAPPDATA\\\\Programs\\\\oh-my-posh\\\\bin\\\\oh-my-posh.exe\" --version)"
     ]
   }
 }
