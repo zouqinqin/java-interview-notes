@@ -1,5 +1,17 @@
 # CAS 与 AQS
 
+> 练习代码：
+> - [Step1_RaceCondition.java](../src/cas_aqs/Step1_RaceCondition.java) — 竞态条件复现
+> - [Step2_AtomicFix.java](../src/cas_aqs/Step2_AtomicFix.java) — 原子类修复竞态
+> - [Step3_CASUnderHood.java](../src/cas_aqs/Step3_CASUnderHood.java) — CAS 底层原理
+> - [Step4_ABA_Problem.java](../src/cas_aqs/Step4_ABA_Problem.java) — ABA 问题复现
+> - [Step4b_AtomicReference.java](../src/cas_aqs/Step4b_AtomicReference.java) — AtomicStampedReference 解决 ABA
+> - [Step5_LockVsSync.java](../src/cas_aqs/Step5_LockVsSync.java) — ReentrantLock vs synchronized
+> - [Step6_FairVsUnfair.java](../src/cas_aqs/Step6_FairVsUnfair.java) — 公平锁 vs 非公平锁
+> - [Step7_ConditionDemo.java](../src/cas_aqs/Step7_ConditionDemo.java) — Condition 条件变量
+> - [Step8_AQSPeek.java](../src/cas_aqs/Step8_AQSPeek.java) — 观察 AQS 等待队列
+> - [Step9_ReadWriteLock.java](../src/cas_aqs/Step9_ReadWriteLock.java) — 读写锁性能对比
+
 ---
 
 ## 一、CAS（Compare And Swap）
