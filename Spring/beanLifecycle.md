@@ -41,7 +41,7 @@
                            │
           ┌────────────────▼────────────────┐
           │  6. BeanPostProcessor            │
-          │   postProcessBeforeInitialization│◄── AOP代理就在这里生成！
+          │   postProcessBeforeInitialization│◄── @PostConstruct 在这里执行！
           └────────────────┬────────────────┘
                            │
           ┌────────────────▼────────────────┐
@@ -54,7 +54,7 @@
                            │
           ┌────────────────▼────────────────┐
           │  8. BeanPostProcessor            │
-          │   postProcessAfterInitialization │
+          │   postProcessAfterInitialization │◄── AOP代理在这里生成！
           └────────────────┬────────────────┘
                            │
           ┌────────────────▼────────────────┐
