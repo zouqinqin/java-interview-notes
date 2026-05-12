@@ -77,6 +77,18 @@
             <artifactId>logback-classic</artifactId>
             <version>1.2.12</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>5.3.20</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>9.0.63</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 
