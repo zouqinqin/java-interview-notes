@@ -8,7 +8,8 @@
       "PowerShell(winget install *)",
       "PowerShell(Get-Command *)",
       "PowerShell(& \"$env:LOCALAPPDATA\\\\Programs\\\\oh-my-posh\\\\bin\\\\oh-my-posh.exe\" --version)",
-      "Bash(claude auth:*)"
+      "Bash(claude auth:*)",
+      "Bash(mvn:*)"
     ]
   }
 }

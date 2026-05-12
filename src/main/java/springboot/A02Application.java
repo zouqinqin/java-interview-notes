@@ -1,8 +1,5 @@
 package springboot;
 
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletPath;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
@@ -12,9 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
@@ -25,7 +19,7 @@ public class A02Application {
 //        TestFileSystemXmlApplicationContext();
 //        TestAnnotationConfigApplicationContext();
 
-        TestAnnotationConfigServletWebServerApplicationContext();
+//        TestAnnotationConfigServletWebServerApplicationContext();
       /*
         // XML 配置生效的原理，其实是配置了BeanFactory
        System.out.println("获取配置前");
@@ -46,13 +40,13 @@ public class A02Application {
 
     }
 
-    private static void TestAnnotationConfigServletWebServerApplicationContext(){
+   /* private static void TestAnnotationConfigServletWebServerApplicationContext(){
         AnnotationConfigServletWebServerApplicationContext context = new AnnotationConfigServletWebServerApplicationContext(WebConfig.class);
         for (String definitionName : context.getBeanDefinitionNames()) {
             System.out.println(definitionName);
         }
 
-    }
+    }*/
 
 
 
@@ -88,7 +82,7 @@ public class A02Application {
         System.out.println(context.getBean(Bean2.class).getBean1());
     }
 
-    @Configuration
+  /*  @Configuration
     static class WebConfig{
         @Bean
         public ServletWebServerFactory servletFactory(){
@@ -113,7 +107,7 @@ public class A02Application {
         }
 
 
-    }
+    }*/
 
 
     @Configuration

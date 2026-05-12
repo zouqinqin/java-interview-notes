@@ -14,37 +14,37 @@ import org.springframework.context.annotation.Configuration;
 
 public class TestBeanFactory {
 
-    public static void main(String[] args) {
-        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-
-        //bean 的定义 （class，scope,初始化，销毁）
-        AbstractBeanDefinition beanDefinition =
-                BeanDefinitionBuilder.genericBeanDefinition(Config.class).setScope("singleton").getBeanDefinition();
-
-        beanFactory.registerBeanDefinition("config", beanDefinition);
-
-        //给BeanFactory 添加一些常用的后置处理器
-        AnnotationConfigUtils.registerAnnotationConfigProcessors(beanFactory);
-
-        //BeanFactory 后置处理器主要功能，补充了一些bean定义
-        beanFactory.getBeansOfType(BeanFactoryPostProcessor.class).values().forEach(beanFactoryPostProcessor -> {
-            beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
-        });
-
-        for (String name : beanFactory.getBeanDefinitionNames()) {
-            System.out.println(name);
-        }
-        beanFactory.getBeansOfType(BeanPostProcessor.class).values().forEach(beanFactory::addBeanPostProcessor);
-
-        beanFactory.preInstantiateSingletons();
-
-        System.out.println("==================");
-
-        System.out.println(beanFactory.getBean(Bean1.class).getBean2());
-
-
-    }
-
+//    public static void main(String[] args) {
+//        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+//
+//        //bean 的定义 （class，scope,初始化，销毁）
+//        AbstractBeanDefinition beanDefinition =
+//                BeanDefinitionBuilder.genericBeanDefinition(Config.class).setScope("singleton").getBeanDefinition();
+//
+//        beanFactory.registerBeanDefinition("config", beanDefinition);
+//
+//        //给BeanFactory 添加一些常用的后置处理器
+//        AnnotationConfigUtils.registerAnnotationConfigProcessors(beanFactory);
+//
+//        //BeanFactory 后置处理器主要功能，补充了一些bean定义
+//        beanFactory.getBeansOfType(BeanFactoryPostProcessor.class).values().forEach(beanFactoryPostProcessor -> {
+//            beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
+//        });
+//
+//        for (String name : beanFactory.getBeanDefinitionNames()) {
+//            System.out.println(name);
+//        }
+//        beanFactory.getBeansOfType(BeanPostProcessor.class).values().forEach(beanFactory::addBeanPostProcessor);
+//
+//        beanFactory.preInstantiateSingletons();
+//
+//        System.out.println("==================");
+//
+//        System.out.println(beanFactory.getBean(Bean1.class).getBean2());
+//
+//
+//    }
+/*
     @Configuration
     static class Config{
 
@@ -85,6 +85,6 @@ public class TestBeanFactory {
         public Bean1 getBean1() {
             return bean1;
         }
-    }
+    }*/
 
 }
