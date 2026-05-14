@@ -41,7 +41,7 @@
                            │
           ┌────────────────▼────────────────┐
           │  6. BeanPostProcessor            │
-          │   postProcessBeforeInitialization│◄── @PostConstruct 在这里执行！
+          │   postProcessBeforeInitialization│◄── @PostConstruct初始化前 在这里执行！
           └────────────────┬────────────────┘
                            │
           ┌────────────────▼────────────────┐
