@@ -23,16 +23,18 @@ public class Bean1 {
 
     private Bean3 bean3;
 
+
+
     @Resource
     public void setBean3(Bean3 bean3) {
-        log.debug("@Resource 生效 <UNK>:{}",bean3);
+        log.debug("@Resource 生效Resource {}",bean3);
         this.bean3 = bean3;
     }
 
     private String home;
     @Autowired
     public void setHome(@Value("${JAVA_HOME}") String home){
-        log.debug("@Value  生效<UNK>:{}",home);
+        log.debug("@Value  生效 Autowired:{}",home);
         this.home = home;
     }
 
