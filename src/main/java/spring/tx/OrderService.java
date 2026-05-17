@@ -20,4 +20,9 @@ public interface OrderService {
 
     // 受检异常 + rollbackFor=Exception.class → 回滚
     void checkedExceptionWithRollbackFor() throws Exception;
+
+    // 多线程：外层 @Transactional，子线程做 INSERT，事务不会传播到子线程
+    void threadMethod() throws InterruptedException;
+
+    void newObjectNoTX();
 }
