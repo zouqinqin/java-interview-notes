@@ -35,8 +35,8 @@
 - [x] Bean生命周期
 - [x] DI依赖注入的方式
 - [x] AOP原理（动态代理，JDK vs CGLIB）
-- [ ] Spring事务（传播机制/失效场景）
-- [ ] SpringMVC请求处理流程（DispatcherServlet)
+- [x] Spring事务（传播机制/失效场景）
+- [x] SpringMVC请求处理流程（DispatcherServlet)
 - [x] Spring循环依赖怎么解决（三级缓存）
 - [x] ApplicationContext vs BeanFactory区别
 

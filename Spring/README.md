@@ -6,8 +6,8 @@
 - [x] Bean生命周期
 - [x] DI依赖注入的方式
 - [x] AOP原理（动态代理，JDK vs CGLIB）
-- [ ] Spring事务（传播机制/失效场景）
-- [ ] SpringMVC请求处理流程（DispatcherServlet)
+- [x] Spring事务（传播机制/失效场景）
+- [x] SpringMVC请求处理流程（DispatcherServlet)
 - [x] Spring循环依赖怎么解决（三级缓存）
 - [x] ApplicationContext vs BeanFactory区别
 
@@ -188,3 +188,163 @@ public class CglibProxyDemo {
 #### 4.7 与 AspectJ 的区别
 - Spring AOP：**运行时**代理，只支持方法级别连接点，性能略低但无需额外编译器。
 - AspectJ：**编译期/类加载期**织入字节码，功能更全（字段、构造器都能切），但需要 ajc 编译器或 LTW 配置。
+
+---
+
+### 5. Spring事务（传播机制/失效场景）
+
+Spring 事务管理本质上是 **AOP + ThreadLocal + 数据库事务** 的组合：通过代理拦截 `@Transactional` 方法，在方法前后调用 `PlatformTransactionManager` 完成事务的开启、提交、回滚，并将 `Connection` 绑定到当前线程的 `TransactionSynchronizationManager`。
+
+#### 5.1 核心组件
+- **`PlatformTransactionManager`**：事务管理器顶层接口，常用实现：
+  - `DataSourceTransactionManager`：JDBC / MyBatis
+  - `JpaTransactionManager`：JPA / Hibernate
+  - `JtaTransactionManager`：分布式事务（XA）
+- **`TransactionDefinition`**：定义事务属性（传播行为、隔离级别、超时、只读）。
+- **`TransactionStatus`**：表示当前事务的运行状态（是否新建、是否完成、是否回滚）。
+- **`TransactionInterceptor`**：AOP 拦截器，是 `@Transactional` 的核心实现，内部调用 `TransactionAspectSupport#invokeWithinTransaction`。
+
+#### 5.2 @Transactional 常用属性
+
+| 属性 | 含义 | 默认值 |
+| ---- | ---- | ------ |
+| `propagation` | 事务传播行为 | `REQUIRED` |
+| `isolation` | 隔离级别 | `DEFAULT`（跟随数据库） |
+| `timeout` | 超时时间（秒） | `-1` |
+| `readOnly` | 只读事务 | `false` |
+| `rollbackFor` | 指定回滚的异常 | `RuntimeException` 和 `Error` |
+| `noRollbackFor` | 指定不回滚的异常 | 空 |
+
+> **默认只回滚 RuntimeException / Error**，受检异常（如 `IOException`）默认不回滚，必须显式 `rollbackFor`。
+
+#### 5.3 七种事务传播机制（Propagation）
+
+| 传播行为 | 行为描述 | 是否新事务 |
+| -------- | -------- | ---------- |
+| `REQUIRED`（默认） | 当前有事务就加入，没有就新建 | 看上下文 |
+| `REQUIRES_NEW` | 无论是否存在，都**挂起当前事务**，新建一个 | 是 |
+| `NESTED` | 当前有事务则创建**嵌套事务**（Savepoint），否则等同 REQUIRED | 子事务 |
+| `SUPPORTS` | 有事务则加入，无事务则以非事务方式执行 | 否 |
+| `NOT_SUPPORTED` | 挂起当前事务，以非事务方式执行 | 否 |
+| `MANDATORY` | 必须存在事务，否则抛 `IllegalTransactionStateException` | 否 |
+| `NEVER` | 必须不存在事务，否则抛异常 | 否 |
+
+**REQUIRED vs REQUIRES_NEW vs NESTED 区别**：
+
+```java
+@Service
+public class OrderService {
+    @Transactional // REQUIRED
+    public void createOrder() {
+        orderDao.insert(...);
+        logService.log();   // 看下面 log() 的传播行为
+        throw new RuntimeException("boom");
+    }
+}
+```
+
+- `log()` 用 `REQUIRED`：与 `createOrder` **共享事务**，外层回滚 → log 一起回滚。
+- `log()` 用 `REQUIRES_NEW`：log **独立提交**，外层回滚不影响 log 已提交的数据。
+- `log()` 用 `NESTED`：log 作为 Savepoint，外层回滚连同子事务一起回滚；子事务自己回滚不影响外层。
+
+#### 5.4 隔离级别（Isolation）
+
+| 隔离级别 | 脏读 | 不可重复读 | 幻读 |
+| -------- | ---- | ---------- | ---- |
+| `READ_UNCOMMITTED` | 可能 | 可能 | 可能 |
+| `READ_COMMITTED` | 否 | 可能 | 可能 |
+| `REPEATABLE_READ`（MySQL 默认） | 否 | 否 | 可能（InnoDB 通过间隙锁基本规避） |
+| `SERIALIZABLE` | 否 | 否 | 否 |
+
+`@Transactional(isolation = Isolation.DEFAULT)` 表示采用底层数据库默认隔离级别。
+
+#### 5.5 失效场景（高频面试点）
+
+事务失效的根因几乎都是 **AOP 代理没被走到** 或 **异常被吞掉**。
+
+1. **方法非 public**
+   - Spring AOP 只对 public 方法生效，`protected` / `private` 上加 `@Transactional` 不会启动事务。
+
+2. **同类内部方法调用（this 调用）**
+   ```java
+   public void a() {
+       this.b(); // ❌ 走的是原始对象的 b()，不经过代理
+   }
+   @Transactional
+   public void b() { ... }
+   ```
+   **解决**：
+   - 把 `b()` 抽到另一个 Bean。
+   - 自注入：`@Autowired private OrderService self; self.b();`
+   - 使用 `AopContext.currentProxy()`（需开启 `exposeProxy=true`）。
+
+3. **异常被 catch 吞掉**
+   ```java
+   @Transactional
+   public void save() {
+       try {
+           dao.insert(...);
+       } catch (Exception e) {
+           log.error(e); // ❌ 没抛出，事务不会回滚
+       }
+   }
+   ```
+
+4. **抛出的是受检异常但未配置 rollbackFor**
+   默认只回滚 `RuntimeException` / `Error`，`SQLException`、`IOException` 等不会回滚。需要：
+   ```java
+   @Transactional(rollbackFor = Exception.class)
+   ```
+
+5. **数据库引擎不支持事务**
+   MySQL 的 MyISAM 引擎不支持事务，需要使用 InnoDB。
+
+6. **多线程调用**
+   事务通过 `ThreadLocal` 绑定 `Connection`，子线程拿不到外层事务，事务上下文丢失。
+
+7. **未被 Spring 管理的对象**
+   `new` 出来的对象不会被代理，`@Transactional` 不生效。
+
+8. **`@Transactional` 标在接口上 + CGLIB 代理**
+   Spring 5 之前，CGLIB 代理可能无法识别接口上的注解。推荐标在**实现类的具体方法上**。
+
+9. **传播行为使用不当**
+   外层用 `NOT_SUPPORTED` 或 `NEVER`，内层方法即便加了 `@Transactional` 也不会有事务。
+
+10. **同方法内既要新事务又要回滚旧事务**
+    `REQUIRED` 下任何子方法抛异常都会把整个事务标记为 `rollback-only`，外层即使 catch 后再提交也会报：
+    ```
+    Transaction rolled back because it has been marked as rollback-only
+    ```
+    **解决**：将子方法改为 `REQUIRES_NEW`，让其独立事务。
+
+#### 5.6 编程式事务（兜底方案）
+
+注解失效或需要更细粒度控制时，使用 `TransactionTemplate`：
+
+```java
+@Autowired
+private TransactionTemplate transactionTemplate;
+
+public void save() {
+    transactionTemplate.execute(status -> {
+        try {
+            dao.insert(...);
+            return null;
+        } catch (Exception e) {
+            status.setRollbackOnly();
+            throw e;
+        }
+    });
+}
+```
+
+#### 5.7 源码入口
+- `@EnableTransactionManagement` → 导入 `TransactionManagementConfigurationSelector`。
+- 注册 `BeanFactoryTransactionAttributeSourceAdvisor`（Advisor）+ `TransactionInterceptor`（Advice）。
+- 方法调用时 → `TransactionInterceptor#invoke` → `TransactionAspectSupport#invokeWithinTransaction`：
+  1. 解析 `TransactionAttribute`（传播行为、隔离级别等）。
+  2. `createTransactionIfNecessary` → 通过 `PlatformTransactionManager#getTransaction` 开启/加入事务。
+  3. 执行目标方法。
+  4. 异常 → `completeTransactionAfterThrowing`（按 `rollbackFor` 决定回滚或提交）。
+  5. 正常 → `commitTransactionAfterReturning`。
